@@ -94,7 +94,7 @@ void ParentBinaryTree<DT>::operator=(ParentBinaryTree<DT>& pbt) {
 	numNodes = pbt.numNodes;
 	ParentArray = new DT[numNodes];
 	ChildPositionArray = new int[numNodes];
-	//Copy the parent array
+	//Copy the parent array and the child position array
 	for (int i = 0; i < pbt.getSize(); i++) {
 		ParentArray[i] = pbt.ParentArray[i];
 		ChildPositionArray[i] = pbt.ChildPositionArray[i];
@@ -280,6 +280,7 @@ int main() {
 			break;
 		}
 	}
+
 	//Show that all the methods work
 	//Default constructor
 	ParentBinaryTree<int>* emptyTree = new ParentBinaryTree<int>();
@@ -291,16 +292,28 @@ int main() {
 	cout << "size: " << tree->getSize() << endl;
 	//Height method
 	cout << "height: " << tree->getHeight() << endl;
-	//getRight and getLeft included in traversals 
-	//getLeft on node 0
-	cout << "Children of 20: ";
-	for (int i = 0; i < tree-> getNumChildren(20); i++) {
-		cout << tree->getChildren(20)[i] << " ";
+	//Example getChildren method run on the root node
+	//Find root node
+	int topRoot = 0;
+	for (int i = 0; i < numNodes; i++) {
+		if (tree->ParentArray[i] == -1) {
+			topRoot = i;
+		}
+	}
+	cout << "Children of " << topRoot << ": ";
+	//Print all the children of the root node
+	for (int i = 0; i < tree-> getNumChildren(topRoot); i++) {
+		cout << tree->getChildren(topRoot)[i] << " ";
 	}
 	cout << endl;
+	//Preorder traversal
+	cout << "Preorder traversal: ";
 	tree->preorderTraversal();
 	cout << endl;
+	//Level-order traversal
+	cout << "Level-order traversal: ";
 	tree->levelOrderTraversal();
+	cout << endl;
 
 	return 0;
 }
