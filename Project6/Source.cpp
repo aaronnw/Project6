@@ -271,7 +271,6 @@ int main() {
 			children[i] = nextChild;
 			i++;
 		}
-		numLines++;
 		if (numLines <= numNodes) {
 			tree->insert(root, children, numChildren);
 		}
@@ -279,6 +278,7 @@ int main() {
 			cout << "Wrong number of nodes given. Using given number. Some input may be ignored. " << endl;
 			break;
 		}
+		numLines++;
 	}
 
 	//Show that all the methods work
