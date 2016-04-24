@@ -256,7 +256,6 @@ int main() {
 	int numLines = 0;
 	//Reads the number of nodes
 	cin >> numNodes;
-	cout << numNodes << endl;
 	//Initializer
 	ParentBinaryTree<int>* tree = new ParentBinaryTree<int>(numNodes);
 	//Reads the rest of the file
@@ -266,11 +265,13 @@ int main() {
 		cin >> numChildren;
 		int* children = new int[numChildren];
 		i = 0;
+		//Read in the children given to each node
 		while (i < numChildren) {
 			cin >> nextChild;
 			children[i] = nextChild;
 			i++;
 		}
+		//If there are not too many lines for the given nodes, insert the values
 		if (numLines <= numNodes) {
 			tree->insert(root, children, numChildren);
 		}
@@ -308,6 +309,9 @@ int main() {
 	//Level-order traversal
 	cout << "Level-order traversal: " << endl;
 	tree->levelOrderTraversal();
+	//Overloaded ostream operator in preorder traversal
+	cout << "C-out in preorder: ";
+	cout << *tree;
 	cout << endl;
 	return 0;
 }
