@@ -2,34 +2,18 @@
 #include <queue>
 using namespace std;
 
-//Performs a sequential search to return all array indices that will result in the given value
-int* getIndicesWithValue(int* inputArray, int searchValue, int arraySize) {
-	int* solutionIndices = new int[arraySize];
-	int i = 0;
-	int j = 0;
-	while (i < arraySize) {
-		if (inputArray[i] == searchValue) {
-			solutionIndices[j] = i;
-			j++;
-		}
-		i++;
-	}
-	return solutionIndices;
-}
-
 template <class DT>
 class ParentBinaryTree {
 	template<class T>
 	friend ostream& operator<< (ostream& s, ParentBinaryTree<T>& pbt); //Overloaded ostream operator
 protected:
 
-
+	DT* ParentArray; //Array indexed by each position with a value for each position's parent
+	int* ChildPositionArray; //Array indexed by each position with a value of 0 for left nodes and 1 for right nodes
 	int numNodes; //Number of nodes in the tree
 	bool firstRoot = true;
-public:
-	int* ChildPositionArray; //Array indexed by each position with a value of 0 for left nodes and 1 for right nodes
-	DT* ParentArray; //Array indexed by each position with a value of each position's parent
 
+public:
 	ParentBinaryTree(); //Default constructor
 	ParentBinaryTree(int size); //Initializer
 	~ParentBinaryTree(); //Destructor
@@ -38,13 +22,14 @@ public:
 	void insert(DT & root, DT* childArray, int numChildren); //Inserts the values to create the tree
 	int getSize(); //Returns the number of nodes in the tree
 	int getHeight(); //Returns the height of the tree
-	int getNodeHeight(int x);
-	int* getChildren(int parent);
-	int getNumChildren(int parent);
+	int getNodeHeight(int x); //Returns the height of a single node
+	int* getChildren(int parent); //Returns an array of all the children of a node
+	int getNumChildren(int parent); //Returns the number of children at a node
+	int getTopRoot();
 	bool isLeaf(int x);  //Checks if the position given is a leaf node
-	void preorderTraversal();
-	void preorderTraversal(int x);
-	void levelOrderTraversal();
+	void preorderTraversal(); //Traverses the tree by the preorder method, using less-than-root values as 'left' and greater-than-root values as 'right'
+	void preorderTraversal(int x); //Traveres by preorder, with the root included as a parameter 
+	void levelOrderTraversal(); //Traverses the tree by level
 };
 
 ///Overloaded ostream operator
@@ -182,6 +167,16 @@ int ParentBinaryTree<DT>::getNumChildren(int parent) {
 	}
 	return count;
 }
+template<class DT>
+int ParentBinaryTree<DT>::getTopRoot() {
+	int topRoot = 0;
+	for (int i = 0; i < numNodes; i++) {
+		if (ParentArray[i] == -1) {
+			topRoot = i;
+		}
+	}
+	return topRoot;
+}
 ///Returns a boolean true if the position is a leaf node
 template<class DT>
 bool ParentBinaryTree<DT>::isLeaf(int x) {
@@ -294,24 +289,19 @@ int main() {
 	cout << "height: " << tree->getHeight() << endl;
 	//Example getChildren method run on the root node
 	//Find root node
-	int topRoot = 0;
-	for (int i = 0; i < numNodes; i++) {
-		if (tree->ParentArray[i] == -1) {
-			topRoot = i;
-		}
-	}
+	int topRoot = tree->getTopRoot();
 	cout << "Children of " << topRoot << ": ";
 	//Print all the children of the root node
 	for (int i = 0; i < tree-> getNumChildren(topRoot); i++) {
 		cout << tree->getChildren(topRoot)[i] << " ";
 	}
 	cout << endl;
-	//Preorder traversal
+	//Preorder traversal (Using less-than-root values as 'left' and greater-than-root values as 'right')
 	cout << "Preorder traversal: ";
 	tree->preorderTraversal();
 	cout << endl;
 	//Level-order traversal
-	cout << "Level-order traversal: ";
+	cout << "Level-order traversal: " << endl;
 	tree->levelOrderTraversal();
 	cout << endl;
 
