@@ -85,7 +85,7 @@ void ParentBinaryTree<DT>::operator=(ParentBinaryTree<DT>& pbt) {
 		ChildPositionArray[i] = pbt.ChildPositionArray[i];
 	}
 }
-//TODO
+//Inserts values into the tree
 template<class DT>
 void ParentBinaryTree<DT>::insert(DT & root, DT* childArray, int numChildren) {
 	//Only for the highest level node
@@ -94,12 +94,13 @@ void ParentBinaryTree<DT>::insert(DT & root, DT* childArray, int numChildren) {
 		ChildPositionArray[root] = -1;
 		firstRoot = false;
 	}
+	//Sets the values for each array
 	for (int i = 0; i < numChildren; i++) {
 		ParentArray[childArray[i]] = root;
 		ChildPositionArray[childArray[i]] = i;
 	};
 }
-///Returns number of nodes in the tree
+//Returns number of nodes in the tree
 template<class DT>
 int ParentBinaryTree<DT>::getSize() {
 	return numNodes;
@@ -124,7 +125,7 @@ int ParentBinaryTree<DT>::getHeight() {
 	}
 	return maxHeight;
 }
-//TODO
+//Returns the height of a single node
 template<class DT>
 int ParentBinaryTree<DT>::getNodeHeight(int x) {
 	int height = 1;
@@ -136,14 +137,15 @@ int ParentBinaryTree<DT>::getNodeHeight(int x) {
 		}
 	return height;
 }
-
-//TODO
+//Returns an array of all of the children of a node
 template<class DT>
 int* ParentBinaryTree<DT>::getChildren(int parent) {
+	//If the node has no children return a special value
 	if (!isLeaf(parent)) {
 		int numChildren = getNumChildren(parent);
 		int* children = new int[numChildren];
 		int j = 0;
+		//Iterate through all the nodes, adding all the children to an array
 		for (int i = 0; i < numNodes; i++) {
 			if (ParentArray[i] == parent) {
 				children[j] = i;
@@ -153,13 +155,16 @@ int* ParentBinaryTree<DT>::getChildren(int parent) {
 		return children;
 	}
 	else {
-		return nullptr;
+		int* children = new int[1];
+		children[0] = -1;
+		return children;
 	}
 }
-//TODO
+//Returns the number of children of a node
 template<class DT>
 int ParentBinaryTree<DT>::getNumChildren(int parent) {
 	int count = 0;
+	//Iterate through all the nodes and count the children of the given parent
 	for (int i = 0; i < numNodes; i++) {
 		if (ParentArray[i] == parent) {
 			count++;
@@ -167,17 +172,17 @@ int ParentBinaryTree<DT>::getNumChildren(int parent) {
 	}
 	return count;
 }
+//Returns the top root of the tree
 template<class DT>
 int ParentBinaryTree<DT>::getTopRoot() {
-	int topRoot = 0;
-	for (int i = 0; i < numNodes; i++) {
-		if (ParentArray[i] == -1) {
-			topRoot = i;
-		}
+	//Checks all the nodes to see if they have a parent of -1
+	int root = 0;
+	while (ParentArray[root] != -1 && root < numNodes) {
+		root++;
 	}
-	return topRoot;
+	return root;
 }
-///Returns a boolean true if the position is a leaf node
+//Returns a boolean true if the position is a leaf node
 template<class DT>
 bool ParentBinaryTree<DT>::isLeaf(int x) {
 	//Check if the position has children
@@ -188,36 +193,35 @@ bool ParentBinaryTree<DT>::isLeaf(int x) {
 		return false;
 	}
 }
-///Prints the node values in preorder format
+//Prints the node values in preorder format
 template<class DT>
 void ParentBinaryTree<DT>::preorderTraversal(int x) {
 	//Root, left, right
 	cout << x << " ";
 	int* children = getChildren(x);
-	//Classify left nodes as those with less value than the parent
+	//Classify left nodes as those with less value than the parent and print the left
 	for (int i = 0; i < getNumChildren(x); i++) {
 		if (children[i] <= x) {
 			preorderTraversal(children[i]);
 		}
 	}
+	//Classify right nodes as those with greater value than the parent and print the right
 	for (int i = 0; i < getNumChildren(x); i++) {
 		if (children[i] > x) {
 			preorderTraversal(children[i]);
 		}
 	}
 }
-///Finds the root node then prints the node values in preorder format
+//Finds the root node then prints the node values in preorder format
 template<class DT>
 void ParentBinaryTree<DT>::preorderTraversal() {
 	//Root, left, right
 	//Find root node
-	int root = 0;
-	while (ParentArray[root] != -1 && root < numNodes) {
-		root++;
-	}
+	int root = getTopRoot();
 	//Start the traversal at the root node
 	preorderTraversal(root);
 }
+//Prints the tree, level by level
 template<class DT>
 void ParentBinaryTree<DT>::levelOrderTraversal(){
 	queue<int> q;
@@ -225,13 +229,14 @@ void ParentBinaryTree<DT>::levelOrderTraversal(){
 	int x = 0; 
 	//For each level
 	for (int level = 1; level <= numLevels; level++){
-		//Check all of the nodes for their height
+		//Check all of the nodes for their height and add them to the queue
 		for (int j = 0; j < numNodes; j++) {
 			if (getNodeHeight(j) == level) {
 				q.push(j);
 			}
 		}
 		cout << level << " ";
+		//As long as there are values in the queue, print them out
 		while (!q.empty()) {
 			x = q.front();
 			q.pop();
@@ -239,7 +244,7 @@ void ParentBinaryTree<DT>::levelOrderTraversal(){
 		}
 		cout << endl;
 	}
-};
+}
 
 int main() {
 	int numNodes = 0;
@@ -304,6 +309,5 @@ int main() {
 	cout << "Level-order traversal: " << endl;
 	tree->levelOrderTraversal();
 	cout << endl;
-
 	return 0;
 }
