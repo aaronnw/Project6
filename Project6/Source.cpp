@@ -5,37 +5,41 @@ using namespace std;
 int* getIndicesWithValue(int* inputArray, int searchValue, int arraySize) {
 	int* solutionIndices = new int[arraySize];
 	int i = 0;
-	int j = 0; 
-	while ( i < arraySize) {
+	int j = 0;
+	while (i < arraySize) {
 		if (inputArray[i] == searchValue) {
 			solutionIndices[j] = i;
 			j++;
 		}
-		i++; 
+		i++;
 	}
-	return solutionIndices;	
+	return solutionIndices;
 }
 
-template <class DT>  
+template <class DT>
 class ParentBinaryTree {
 	template<class T>
 	friend ostream& operator<< (ostream& s, ParentBinaryTree<T>& pbt); //Overloaded ostream operator
-protected:   
-	DT* ParentArray; //Array indexed by each position with a value of each position's parent
-	int* ChildPositionArray; //Array indexed by each position with a value of 0 for left nodes and 1 for right nodes
+protected:
+
+
 	int numNodes; //Number of nodes in the tree
-	bool firstRoot = true; 
+	bool firstRoot = true;
 public:
+	int* ChildPositionArray; //Array indexed by each position with a value of 0 for left nodes and 1 for right nodes
+	DT* ParentArray; //Array indexed by each position with a value of each position's parent
+
 	ParentBinaryTree(); //Default constructor
 	ParentBinaryTree(int size); //Initializer
 	~ParentBinaryTree(); //Destructor
 	ParentBinaryTree(ParentBinaryTree& pbt); //Copy constructor
 	void operator=(ParentBinaryTree<DT>& pbt); //Overloaded assignment operator
-	void insertParent(const DT & root, const DT* childArray); //Inserts the values to create the tree
+	void insert(DT & root, DT* childArray, int numChildren); //Inserts the values to create the tree
 	int getSize(); //Returns the number of nodes in the tree
 	int getHeight(); //Returns the height of the tree
+	int* getChildren(int parent);
 	bool isLeaf(int x);  //Checks if the position given is a leaf node
-	void preorderTraversal(); 
+	void preorderTraversal();
 	void preorderTraversal(int x);
 	void levelOrderTraversal();
 };
@@ -79,7 +83,7 @@ ParentBinaryTree<DT>::ParentBinaryTree(ParentBinaryTree<DT> & pbt) {
 		ParentArray[i] = pbt.ParentArray[i];
 		ChildPositionArray[i] = pbt.ChildPositionArray[i];
 	}
-	
+
 }
 ///Overloaded assignment operator
 template<class DT>
@@ -93,16 +97,19 @@ void ParentBinaryTree<DT>::operator=(ParentBinaryTree<DT>& pbt) {
 		ChildPositionArray[i] = pbt.ChildPositionArray[i];
 	}
 }
-///Inserts values into the tree
+//TODO
 template<class DT>
-void ParentBinaryTree<DT>::insertParent(const DT & root, const DT* childArray, int numChildren) {
+void ParentBinaryTree<DT>::insert(DT & root, DT* childArray, int numChildren) {
+	//Only for the highest level node
 	if (firstRoot) {
 		ParentArray[root] = -1;
 		ChildPositionArray[root] = -1;
-		numNodes = 1;
 		firstRoot = false;
 	}
-	if (
+	for (int i = 0; i < numChildren; i++) {
+		ParentArray[i] = root;
+		ChildPositionArray[childArray[i]] = i;
+	};
 }
 ///Returns number of nodes in the tree
 template<class DT>
@@ -132,27 +139,35 @@ int ParentBinaryTree<DT>::getHeight() {
 		}
 	}
 	return maxHeight;
-} 
+}
 //TODO
 template<class DT>
-int* ParentBinaryTree<DT>::getChildren(int parent, int numChildren) {
-	int children = new int[numChildren];
-	int j = 0; 
+int* ParentBinaryTree<DT>::getChildren(int parent) {
+	//Make an array in case all of the child nodes are children
+	int* children = new int[numNodes - 1];
+	int j = 0;
 	for (int i = 0; i < numNodes; i++) {
 		if (ParentArray[i] == parent) {
 			children[j] = i;
-			j++
+			j++;
+			cout << i;
 		}
 	}
-	return children;
+	int* trimmedChildList = new int[j];
+	for (int k = 0; k < j; k++) {
+		trimmedChildList[k] = children[k];
+	}
+	delete children;
+	return trimmedChildList;
 }
 ///Returns a boolean true if the position is a leaf node
 template<class DT>
 bool ParentBinaryTree<DT>::isLeaf(int x) {
 	//Check if the position has children
-	if ((getLeft(x) == -1 ) && (getRight(x) == -1)) {
+	if ((getLeft(x) == -1) && (getRight(x) == -1)) {
 		return true;
-	} else {
+	}
+	else {
 		return false;
 	}
 }
@@ -187,8 +202,7 @@ int main() {
 	int numNodes = 0;
 	int root;
 	int numChildren = 0;
-	int* children = NULL;
-	int i; 
+	int i;
 	int nextChild;
 	//Keeps track of number of lines to avoid crash if too many are read
 	int numLines = 0;
@@ -198,33 +212,28 @@ int main() {
 	//Initializer
 	ParentBinaryTree<int>* tree = new ParentBinaryTree<int>(numNodes);
 	//Reads the rest of the file
-	while (!cin.eof()){
+	while (!cin.eof()) {
 		//For each line add the info to the tree
 		cin >> root;
 		cin >> numChildren;
-		if(numChildren > 0){
-			children = new int[numChildren];
-			i = 0;
-			while (i < numChildren) {
-				cin >> nextChild;
-				children[i] = nextChild;
-				i++;
-			}
+		int* children = new int[numChildren];
+		i = 0;
+		while (i < numChildren) {
+			cin >> nextChild;
+			children[i] = nextChild;
+			i++;
 		}
 		numLines++;
 		if (numLines <= numNodes) {
-			//For now just print to show that it works
-			cout << numChildren << " ";
-			for (int i = 0; i < numChildren; i++) {
-				cout << children[i] << " ";
-			}
-			cout << endl;
-			//Insert the parent and its children into the array
-			//Change insert method to take array of inputs
-		} else {
+			tree->insert(root, children, numChildren);
+		}
+		else {
 			cout << "Wrong number of nodes given. Using given number. Some input may be ignored. " << endl;
 			break;
 		}
+	}
+	for (int z = 0; z < numNodes; z++) {
+		cout << z << " " << tree->ParentArray[z] << endl;
 	}
 	return 0;
 }
