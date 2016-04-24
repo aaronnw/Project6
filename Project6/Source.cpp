@@ -107,7 +107,7 @@ void ParentBinaryTree<DT>::insert(DT & root, DT* childArray, int numChildren) {
 		firstRoot = false;
 	}
 	for (int i = 0; i < numChildren; i++) {
-		ParentArray[i] = root;
+		ParentArray[childArray[i]] = root;
 		ChildPositionArray[childArray[i]] = i;
 	};
 }
